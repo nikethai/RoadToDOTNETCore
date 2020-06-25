@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using RoadToAPI.Hubs;
 
 namespace RoadToAPI
 {
@@ -46,10 +47,11 @@ namespace RoadToAPI
             {
                 options.AddPolicy("MyOrigin", builder =>
                  {
-                     builder.WithOrigins("http://localhost:3000", "https://localhost:62801").AllowAnyHeader().AllowCredentials().WithExposedHeaders("Authorization");
+                     builder.WithOrigins("http://localhost:3000", "https://localhost:62801","http://192.168.1.12:3000", "https://buttapptest.azurewebsites.net").AllowAnyHeader().AllowCredentials().WithExposedHeaders("Authorization");
                  });
             });
             services.AddControllers();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,7 +66,7 @@ namespace RoadToAPI
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors("MyOrigin");
 
             app.UseAuthentication();
 
@@ -73,6 +75,7 @@ namespace RoadToAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHubs>("/chat");
             });
         }
     }
